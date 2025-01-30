@@ -51,7 +51,7 @@ public class AuthorsController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApi
         author.Alias = authorUpdateDto.Alias ?? author.Alias;
 
         if (await unitOfWork.Complete()) return NoContent();
-        return BadRequest("Failed to edit author");
+        return BadRequest("Failed to update author");
     }
 
     [HttpDelete("{authorId}")]
