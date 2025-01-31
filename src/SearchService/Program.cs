@@ -1,3 +1,5 @@
+using SearchService.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,5 +13,19 @@ var app = builder.Build();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
+{
+    var connectionString = app.Configuration.GetConnectionString("MongoDbConnection");
+    var logger = services.GetRequiredService<ILogger<DbInitializer>>();
+    await DbInitializer.InitDb(connectionString!, logger);
+}
+catch (Exception ex)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occured during migration");
+}
 
 app.Run();

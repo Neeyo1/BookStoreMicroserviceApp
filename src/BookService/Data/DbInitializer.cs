@@ -151,7 +151,7 @@ public class DbInitializer
                 BookId = Guid.Parse("fba945a2-bcd9-48b0-8c6a-0bde476c00cc")
             }
         };
-        await context.Books.AddRangeAsync(books);
+        await context.Items.AddRangeAsync(items);
 
         await context.SaveChangesAsync();
         logger.LogInformation("------ Seeding process completed ------");

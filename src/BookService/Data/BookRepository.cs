@@ -37,6 +37,7 @@ public class BookRepository(BookDbContext context, IMapper mapper) : IBookReposi
         return await context.Books
             .Include(x => x.Author)
             .Include(x => x.Publisher)
+            .Include(x => x.Items)
             .FirstOrDefaultAsync(x => x.Id == bookId);
     }
 }
