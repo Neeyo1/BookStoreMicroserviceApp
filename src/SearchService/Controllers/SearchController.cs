@@ -2,6 +2,7 @@ using System;
 using BookService.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using SearchService.Entities;
+using SearchService.Helpers;
 using SearchService.Interfaces;
 
 namespace SearchService.Controllers;
@@ -9,10 +10,15 @@ namespace SearchService.Controllers;
 public class SearchController(ISearchRepository searchRepository) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Book>>> SearchItems(string? searchTerm)
+    public async Task<ActionResult<IEnumerable<Book>>> SearchItems([FromQuery] SearchParams searchParams)
     {
-        var books = await searchRepository.GetBooks(searchTerm);
+        var result = await searchRepository.GetBooks(searchParams);
         
-        return Ok(books);
+        return Ok(new
+        {
+            results = result.Results,
+            pageCount = result.PageCount,
+            totalCount = result.TotalCount
+        });
     }
 }
