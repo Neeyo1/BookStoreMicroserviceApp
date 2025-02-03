@@ -1,6 +1,7 @@
 using AutoMapper;
 using BookService.DTOs;
 using BookService.Entities;
+using Contracts;
 
 namespace BookService.Helpers;
 
@@ -16,6 +17,7 @@ public class AutoMapperProfiles : Profile
             .ForMember(x => x.Items, y => y.MapFrom(z => z.Items.Where(a => a.Status == Status.Avaiable).Count()));
         CreateMap<BookCreateDto, Book>();
         CreateMap<Item, ItemDto>();
+        CreateMap<BookDto, BookCreated>();
         
         CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
         CreateMap<DateTime?, DateTime?>().ConvertUsing(d => d.HasValue 

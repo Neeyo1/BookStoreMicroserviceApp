@@ -2,11 +2,14 @@ using AutoMapper;
 using BookService.DTOs;
 using BookService.Entities;
 using BookService.Interfaces;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookService.Controllers;
 
-public class BooksController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApiController
+public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
+    IPublishEndpoint publishEndpoint) : BaseApiController
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BookDto>>> GetBooks()
@@ -41,8 +44,10 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApiCo
         var newBook = mapper.Map<BookDto>(book);
 
         if (await unitOfWork.Complete())
+        {
+            await publishEndpoint.Publish(mapper.Map<BookCreated>(newBook));
             return CreatedAtAction(nameof(GetBook), new {bookId = book.Id}, newBook);
-            
+        }
         return BadRequest("Failed to create book");
     }
 

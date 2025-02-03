@@ -1,5 +1,6 @@
 using BookService.Data;
 using BookService.Interfaces;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,14 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddDbContext<BookDbContext>(opt => 
 {
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddMassTransit(x => 
+{
+    x.UsingRabbitMq((context, conf) =>
+    {
+        conf.ConfigureEndpoints(context);
+    });
 });
 
 var app = builder.Build();
