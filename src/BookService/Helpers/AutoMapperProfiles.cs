@@ -18,6 +18,8 @@ public class AutoMapperProfiles : Profile
         CreateMap<BookCreateDto, Book>();
         CreateMap<Item, ItemDto>();
         CreateMap<BookDto, BookCreated>();
+        CreateMap<Book, BookUpdated>()
+            .ForMember(x => x.Items, y => y.MapFrom(z => z.Items.Where(a => a.Status == Status.Avaiable).Count()));
         
         CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
         CreateMap<DateTime?, DateTime?>().ConvertUsing(d => d.HasValue 

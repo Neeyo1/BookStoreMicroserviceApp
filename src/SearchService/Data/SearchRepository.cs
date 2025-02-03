@@ -1,3 +1,4 @@
+using MongoDB.Driver;
 using MongoDB.Entities;
 using SearchService.Entities;
 using SearchService.Helpers;
@@ -34,5 +35,23 @@ public class SearchRepository : ISearchRepository
         query.PageSize(searchParams.PageSize);
 
         return await query.ExecuteAsync();
+    }
+
+    public async Task<DeleteResult> DeleteBook(Guid id)
+    {
+        return await DB.DeleteAsync<Book>(id.ToString());
+    }
+
+    public async Task<UpdateResult> UpdateBook(Book book)
+    {
+        return await DB.Update<Book>()
+            .Match(x => x.ID == book.ID)
+            .ModifyOnly(x => new
+            {
+                x.Price,
+                x.Items,
+                x.ImageUrl
+            }, book)
+            .ExecuteAsync();
     }
 }

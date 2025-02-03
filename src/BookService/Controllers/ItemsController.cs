@@ -2,11 +2,14 @@ using AutoMapper;
 using BookService.DTOs;
 using BookService.Entities;
 using BookService.Interfaces;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookService.Controllers;
 
-public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApiController
+public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper,
+    IPublishEndpoint publishEndpoint) : BaseApiController
 {
     [HttpGet]
     public async Task<ActionResult<ItemDto>> GetItems(Guid bookId)
@@ -29,7 +32,7 @@ public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApiCo
     }
 
     [HttpPut]
-    public async Task<ActionResult<BookDto>> CreateBook(Guid bookId, int quantity)
+    public async Task<ActionResult<BookDto>> CreateItem(Guid bookId, int quantity)
     {
         var book = await unitOfWork.BookRepository.GetBookByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");
@@ -42,6 +45,8 @@ public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApiCo
             };
             book.Items.Add(item);
         }
+
+        await publishEndpoint.Publish(mapper.Map<BookUpdated>(book));
 
         if (await unitOfWork.Complete()) return NoContent();
         return BadRequest("Failed to add items");

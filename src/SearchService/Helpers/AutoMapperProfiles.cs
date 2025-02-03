@@ -9,5 +9,6 @@ public class AutoMapperProfiles : Profile
     public AutoMapperProfiles()
     {
         CreateMap<BookCreated, Book>();
+        CreateMap<BookUpdated, Book>();
     }
 }

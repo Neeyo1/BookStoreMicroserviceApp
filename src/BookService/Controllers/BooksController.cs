@@ -44,7 +44,7 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         var newBook = mapper.Map<BookDto>(book);
 
         await publishEndpoint.Publish(mapper.Map<BookCreated>(newBook));
-        
+
         if (await unitOfWork.Complete())
             return CreatedAtAction(nameof(GetBook), new {bookId = book.Id}, newBook);
         return BadRequest("Failed to create book");
@@ -56,22 +56,10 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         var book = await unitOfWork.BookRepository.GetBookByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book");
 
-        book.Name = bookUpdateDto.Name ?? book.Name;
-        book.Year = bookUpdateDto.Year ?? book.Year;
         book.ImageUrl = bookUpdateDto.ImageUrl ?? book.ImageUrl;
         book.Price = bookUpdateDto.Price ?? book.Price;
-        if (bookUpdateDto.AuthorId != null)
-        {
-            var author = await unitOfWork.AuthorRepository.GetAuthorByIdAsync((Guid)bookUpdateDto.AuthorId);
-            if (author == null) return BadRequest("Failed to find author of given id");
-            book.AuthorId = (Guid)bookUpdateDto.AuthorId;
-        }
-        if (bookUpdateDto.PublisherId != null)
-        {
-            var publisher = await unitOfWork.PublisherRepository.GetPublisherByIdAsync((Guid)bookUpdateDto.PublisherId);
-            if (publisher == null) return BadRequest("Failed to find publisher of given id");
-            book.PublisherId = (Guid)bookUpdateDto.PublisherId;
-        }
+
+        await publishEndpoint.Publish(mapper.Map<BookUpdated>(book));
 
         if (await unitOfWork.Complete()) return NoContent();
         return BadRequest("Failed to update book");
@@ -84,6 +72,8 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         if (book == null) return BadRequest("Failed to find book");
 
         unitOfWork.BookRepository.DeleteBook(book);
+
+        await publishEndpoint.Publish<BookDeleted>(new {Id = book.Id});
 
         if (await unitOfWork.Complete()) return NoContent();
         return BadRequest("Failed to delete book");
