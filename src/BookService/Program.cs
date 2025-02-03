@@ -23,6 +23,13 @@ builder.Services.AddDbContext<BookDbContext>(opt =>
 
 builder.Services.AddMassTransit(x => 
 {
+    x.AddEntityFrameworkOutbox<BookDbContext>(y =>
+    {
+        y.QueryDelay = TimeSpan.FromSeconds(10);
+        y.UsePostgres();
+        y.UseBusOutbox();
+    });
+
     x.UsingRabbitMq((context, conf) =>
     {
         conf.ConfigureEndpoints(context);

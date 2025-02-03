@@ -18,6 +18,12 @@ builder.Services.AddMassTransit(x =>
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
     x.UsingRabbitMq((context, conf) =>
     {
+        conf.ReceiveEndpoint("search-book-created", y =>
+        {
+            y.UseMessageRetry(z => z.Interval(5, 5));
+            y.ConfigureConsumer<BookCreatedConsumer>(context);
+        });
+
         conf.ConfigureEndpoints(context);
     });
 });

@@ -43,11 +43,10 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
 
         var newBook = mapper.Map<BookDto>(book);
 
+        await publishEndpoint.Publish(mapper.Map<BookCreated>(newBook));
+        
         if (await unitOfWork.Complete())
-        {
-            await publishEndpoint.Publish(mapper.Map<BookCreated>(newBook));
             return CreatedAtAction(nameof(GetBook), new {bookId = book.Id}, newBook);
-        }
         return BadRequest("Failed to create book");
     }
 
