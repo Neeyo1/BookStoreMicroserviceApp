@@ -2,10 +2,12 @@ using AutoMapper;
 using BookService.DTOs;
 using BookService.Entities;
 using BookService.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookService.Controllers;
 
+[Authorize(Policy = "RequireAdminRole")]
 public class PublishersController(IUnitOfWork unitOfWork, IMapper mapper) : BaseApiController
 {
     [HttpGet]

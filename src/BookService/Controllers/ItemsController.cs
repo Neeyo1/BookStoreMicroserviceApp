@@ -4,10 +4,12 @@ using BookService.Entities;
 using BookService.Interfaces;
 using Contracts;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookService.Controllers;
 
+[Authorize(Policy = "RequireAdminRole")]
 public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper,
     IPublishEndpoint publishEndpoint) : BaseApiController
 {

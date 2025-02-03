@@ -4,6 +4,7 @@ using BookService.Entities;
 using BookService.Interfaces;
 using Contracts;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookService.Controllers;
@@ -28,6 +29,7 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         return Ok(mapper.Map<BookDto>(book));
     }
 
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpPost]
     public async Task<ActionResult<BookDto>> CreateBook(BookCreateDto bookCreateDto)
     {
@@ -50,6 +52,7 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         return BadRequest("Failed to create book");
     }
 
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpPut("{bookId}")]
     public async Task<ActionResult> UpdatetBook(BookUpdateDto bookUpdateDto, Guid bookId)
     {
@@ -65,6 +68,7 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         return BadRequest("Failed to update book");
     }
 
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpDelete("{bookId}")]
     public async Task<ActionResult> DeleteBook(Guid bookId)
     {  
@@ -79,6 +83,7 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
         return BadRequest("Failed to delete book");
     }
 
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpGet("{bookId}/items")]
     public async Task<ActionResult<ItemDto>> GetItems(Guid bookId)
     {
