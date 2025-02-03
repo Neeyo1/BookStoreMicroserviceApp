@@ -484,3 +484,4 @@ $RECYCLE.BIN/
 *.swp
 
 src/*/appsettings.json
+src/IdentityService/keys

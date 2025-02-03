@@ -36,7 +36,8 @@ public class SeedData
             }
 
             result = userMgr.AddClaimsAsync(alice, new Claim[]{
-                            new Claim(JwtClaimTypes.Name, "Alice Smith")
+                            new Claim(JwtClaimTypes.Name, "Alice Smith"),
+                            new Claim(JwtClaimTypes.Role, "User")
                         }).Result;
             if (!result.Succeeded)
             {
@@ -65,7 +66,8 @@ public class SeedData
             }
 
             result = userMgr.AddClaimsAsync(bob, new Claim[]{
-                            new Claim(JwtClaimTypes.Name, "Bob Smith")
+                            new Claim(JwtClaimTypes.Name, "Bob Smith"),
+                            new Claim(JwtClaimTypes.Role, "Admin")
                         }).Result;
             if (!result.Succeeded)
             {
