@@ -2,6 +2,8 @@ using AutoMapper;
 using CartService.DTOs;
 using CartService.Entities;
 using CartService.Interfaces;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +11,7 @@ namespace CartService.Controllers;
 
 [Authorize]
 public class CartsController(ICartRepository cartRepository, IBookRepository bookRepository,
-    IMapper mapper) : BaseApiController
+    IMapper mapper, IPublishEndpoint publishEndpoint) : BaseApiController
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CartDto>>> GetCarts()
@@ -67,6 +69,9 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
             };
 
             newCart.BookCarts.Add(item);
+
+            var cartToPublish = mapper.Map<CartDto>(cart);
+            await publishEndpoint.Publish(mapper.Map<CartCreated>(cartToPublish));
         }
         else // Cart exists
         {
@@ -89,6 +94,9 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
                 item.Quantity += quantity;
                 cart.UpdatedAt = DateTime.UtcNow;
             }
+
+            var cartToPublish = mapper.Map<CartDto>(cart);
+            await publishEndpoint.Publish(mapper.Map<CartUpdated>(cartToPublish));
         }
 
         if (await cartRepository.Complete())
@@ -128,6 +136,9 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
             cart.BookCarts.Remove(item);
         }
         cart.UpdatedAt = DateTime.UtcNow;
+
+        var cartToPublish = mapper.Map<CartDto>(cart);
+        await publishEndpoint.Publish(mapper.Map<CartUpdated>(cartToPublish));
         
         if (await cartRepository.Complete())
             return NoContent();

@@ -1,3 +1,4 @@
+using CartService.Consumers;
 using CartService.Data;
 using CartService.Interfaces;
 using MassTransit;
@@ -21,6 +22,8 @@ builder.Services.AddDbContext<CartDbContext>(opt =>
 
 builder.Services.AddMassTransit(x => 
 {
+    x.AddConsumersFromNamespaceContaining<BookCreatedConsumer>();
+
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("carts", false));
 
     x.AddEntityFrameworkOutbox<CartDbContext>(y =>
