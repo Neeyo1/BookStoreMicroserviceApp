@@ -18,6 +18,7 @@ public class CartRepository(CartDbContext context, IMapper mapper) : ICartReposi
     {
         return await context.Carts
             .Where(x => x.Username == username)
+            .Include(x => x.BookCarts)
             .ProjectTo<CartDto>(mapper.ConfigurationProvider)
             .ToListAsync();
     }
@@ -31,12 +32,15 @@ public class CartRepository(CartDbContext context, IMapper mapper) : ICartReposi
     public async Task<Cart?> GetCartWithDetailsByIdAsync(Guid cartId)
     {
         return await context.Carts
-            .FindAsync(cartId);
+            .Include(x => x.BookCarts)
+            .ThenInclude(x => x.Book)
+            .FirstOrDefaultAsync(x => x.Id == cartId);
     }
 
     public async Task<Cart?> GetCartByUsernameAsync(string username)
     {
         return await context.Carts
+            .Include(x => x.BookCarts)
             .FirstOrDefaultAsync(x => x.Username == username);
     }
 
