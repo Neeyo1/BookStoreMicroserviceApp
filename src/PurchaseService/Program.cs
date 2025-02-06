@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MongoDB.Driver;
 using MongoDB.Entities;
+using PurchaseService.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddMassTransit(x => 
 {
+    x.AddConsumersFromNamespaceContaining<CartCreatedConsumer>();
+
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("purchace", false));
 
     x.UsingRabbitMq((context, conf) =>

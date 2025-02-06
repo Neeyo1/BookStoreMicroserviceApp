@@ -64,13 +64,13 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
             var item = new BookCart
             {
                 Quantity = quantity,
-                BookId = bookId,
+                Book = book,
                 CartId = newCart.Id
             };
 
             newCart.BookCarts.Add(item);
 
-            var cartToPublish = mapper.Map<CartDto>(cart);
+            var cartToPublish = mapper.Map<CartDto>(newCart);
             await publishEndpoint.Publish(mapper.Map<CartCreated>(cartToPublish));
         }
         else // Cart exists
@@ -82,7 +82,7 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
                 var newItem = new BookCart
                 {
                     Quantity = quantity,
-                    BookId = bookId,
+                    Book = book,
                     CartId = cart.Id
                 };
 
