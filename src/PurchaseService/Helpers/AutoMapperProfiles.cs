@@ -16,5 +16,6 @@ public class AutoMapperProfiles : Profile
         CreateMap<BookContract, Book>();
         CreateMap<CartUpdated, Cart>()
             .ForMember(x => x.Items, y => y.MapFrom(z => z.Items.ToList()));
+        CreateMap<ItemCreated, Item>();
     }
 }

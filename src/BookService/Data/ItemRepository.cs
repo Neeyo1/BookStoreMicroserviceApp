@@ -9,6 +9,11 @@ namespace BookService.Data;
 
 public class ItemRepository(BookDbContext context, IMapper mapper) : IItemRepository
 {
+    public void AddItem(Item item)
+    {
+        context.Items.Add(item);
+    }
+    
     public async Task<IEnumerable<ItemDto>> GetItemsAsync(Guid bookId)
     {
         return await context.Items

@@ -8,6 +8,8 @@ public class Item
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ReservedAt { get; set; }
+    public DateTime? ReservedUntil { get; set; }
+    public string? ReservedBy { get; set; }
 
     //Item - Book
     public Guid BookId { get; set; }

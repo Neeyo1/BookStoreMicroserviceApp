@@ -36,7 +36,7 @@ public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper,
     [HttpPut]
     public async Task<ActionResult<BookDto>> CreateItem(Guid bookId, int quantity)
     {
-        var book = await unitOfWork.BookRepository.GetBookByIdAsync(bookId);
+        var book = await unitOfWork.BookRepository.GetBookWithDetailsByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");
 
         for (int i = 0; i < quantity; i++)
@@ -45,7 +45,9 @@ public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper,
             {
                 BookId = book.Id
             };
-            book.Items.Add(item);
+            unitOfWork.ItemRepository.AddItem(item);
+
+            await publishEndpoint.Publish(mapper.Map<ItemCreated>(item));
         }
 
         await publishEndpoint.Publish(mapper.Map<BookUpdated>(book));

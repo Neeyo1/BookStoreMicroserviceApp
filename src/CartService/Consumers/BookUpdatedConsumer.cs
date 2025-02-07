@@ -14,7 +14,7 @@ public class BookUpdatedConsumer(ILogger<BookUpdatedConsumer> logger, IBookRepos
 
         var book = await bookRepository.GetBookByIdAsync(context.Message.Id);
         if (book == null)
-            throw new MessageException(typeof(BookDeleted), 
+            throw new MessageException(typeof(BookUpdated), 
                 "Problem occured while searching for book in carts database");
 
         book.Price = context.Message.Price;
