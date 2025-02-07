@@ -1,3 +1,4 @@
+using BookService.Consumers;
 using BookService.Data;
 using BookService.Interfaces;
 using MassTransit;
@@ -24,6 +25,10 @@ builder.Services.AddDbContext<BookDbContext>(opt =>
 
 builder.Services.AddMassTransit(x => 
 {
+    x.AddConsumersFromNamespaceContaining<ItemUpdatedConsumer>();
+
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("books", false));
+
     x.AddEntityFrameworkOutbox<BookDbContext>(y =>
     {
         y.QueryDelay = TimeSpan.FromSeconds(10);
