@@ -9,6 +9,6 @@ public interface ICartRepository
     Task<IEnumerable<CartDto>> GetCartsAsync(string username);
     Task<Cart?> GetCartByIdAsync(Guid cartId);
     Task<Cart?> GetCartWithDetailsByIdAsync(Guid cartId);
-    Task<Cart?> GetCartByUsernameAsync(string username);
+    Task<Cart?> GetActiveOrProceedingCartByUsernameAsync(string username);
     Task<bool> Complete();
 }

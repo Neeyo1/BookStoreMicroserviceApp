@@ -9,6 +9,8 @@ public class Cart : Entity
     public int TotalPrice { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public DateTime? FinishedAt { get; set; }
+    public CartStatus Status { get; set; }
     
     [BsonElement("Items")]
     public List<BookCart> Items { get; set; } = new();

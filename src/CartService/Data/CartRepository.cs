@@ -37,11 +37,12 @@ public class CartRepository(CartDbContext context, IMapper mapper) : ICartReposi
             .FirstOrDefaultAsync(x => x.Id == cartId);
     }
 
-    public async Task<Cart?> GetCartByUsernameAsync(string username)
+    public async Task<Cart?> GetActiveOrProceedingCartByUsernameAsync(string username)
     {
         return await context.Carts
             .Include(x => x.BookCarts)
-            .FirstOrDefaultAsync(x => x.Username == username);
+            .FirstOrDefaultAsync(x => x.Username == username
+                && (x.Status == CartStatus.Active || x.Status == CartStatus.Proceeding));
     }
 
     public async Task<bool> Complete()

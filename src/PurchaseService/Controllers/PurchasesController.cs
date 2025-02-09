@@ -1,4 +1,5 @@
 using AutoMapper;
+using Contracts;
 using Contracts.Cart;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -20,8 +21,12 @@ public class PurchasesController(IMapper mapper, IPurchaseRepository purchaseRep
         if (identity == null || identity.Name == null)
             return BadRequest("Failed to get identity of a user");
 
-        var cart = await cartRepository.GetCartByUsernameAsync(identity.Name);
-        if (cart == null) return BadRequest("Failed to find cart of given user");
+        var cart = await cartRepository.GetActiveCartByUsernameAsync(identity.Name);
+        if (cart == null) return BadRequest("Failed to find active cart of given user");
+
+        cart.Status = CartStatus.Proceeding;
+        await DB.SaveAsync(cart);
+        await publishEndpoint.Publish(mapper.Map<CartProceeding>(cart));
 
         try
         {

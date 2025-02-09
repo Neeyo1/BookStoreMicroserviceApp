@@ -51,7 +51,7 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
         var book = await bookRepository.GetBookByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");
 
-        var cart = await cartRepository.GetCartByUsernameAsync(identity.Name);
+        var cart = await cartRepository.GetActiveOrProceedingCartByUsernameAsync(identity.Name);
         if (cart == null) // No cart yet, its first book user adds to cart
         {
             var newCart = new Cart
@@ -72,6 +72,10 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
 
             var cartToPublish = mapper.Map<CartDto>(newCart);
             await publishEndpoint.Publish(mapper.Map<CartCreated>(cartToPublish));
+        }
+        else if (cart.Status == CartStatus.Proceeding) // Cart exists but is already proceeding
+        {
+            return BadRequest("This cart is already proceeding");
         }
         else // Cart exists
         {
@@ -116,10 +120,14 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
         var book = await bookRepository.GetBookByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");
 
-        var cart = await cartRepository.GetCartByUsernameAsync(identity.Name);
+        var cart = await cartRepository.GetActiveOrProceedingCartByUsernameAsync(identity.Name);
         if (cart == null)
         {
             return BadRequest("Cart does not exist");
+        }
+        if (cart.Status == CartStatus.Proceeding) // Cart exists but is already proceeding
+        {
+            return BadRequest("This cart is already proceeding");
         }
         
         var item = cart.BookCarts
