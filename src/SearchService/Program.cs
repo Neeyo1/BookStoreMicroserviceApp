@@ -18,6 +18,12 @@ builder.Services.AddMassTransit(x =>
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
     x.UsingRabbitMq((context, conf) =>
     {
+        conf.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
+        {
+            host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest")!);
+            host.Password(builder.Configuration.GetValue("RabbitMq:Username", "guest")!);
+        });
+        
         conf.ReceiveEndpoint("search-book-created", y =>
         {
             y.UseMessageRetry(z => z.Interval(5, 5));
