@@ -15,7 +15,7 @@ public class PurchasesController(IMapper mapper, IPurchaseRepository purchaseRep
     ICartRepository cartRepository, IPublishEndpoint publishEndpoint) : BaseApiController
 {
     [HttpPost]
-    public async Task<ActionResult> Purchase()
+    public async Task<ActionResult> Purchase(bool paymentResult)
     {
         var identity = User.Identity;
         if (identity == null || identity.Name == null)
@@ -24,33 +24,87 @@ public class PurchasesController(IMapper mapper, IPurchaseRepository purchaseRep
         var cart = await cartRepository.GetActiveCartByUsernameAsync(identity.Name);
         if (cart == null) return BadRequest("Failed to find active cart of given user");
 
-        cart.Status = CartStatus.Proceeding;
-        await DB.SaveAsync(cart);
-        await publishEndpoint.Publish(mapper.Map<CartProceeding>(cart));
-
         try
         {
             var items = await purchaseRepository.GetItemsForReservation(cart);
 
-            var timeNow = DateTime.UtcNow;
+            cart.Status = "Proceeding";
+            await DB.SaveAsync(cart);
+            await publishEndpoint.Publish(mapper.Map<CartStatusChanged>(cart));
 
-            foreach (var item in items)
+            await UpdateItemsToReserved(items, cart.Username);
+
+            await Task.Delay(5000); // Wait for payment process
+
+            if (paymentResult)
             {
-                item.Status = ItemStatus.Reserved;
-                item.ReservedAt = timeNow;
-                item.ReservedUntil = timeNow.AddMinutes(5);
-                item.ReservedBy = cart.Username;
+                await UpdateItemsToSold(items, cart.Username);
 
-                await DB.SaveAsync(item);
+                cart.Status = "Finished";
+                await DB.SaveAsync(cart);
+                await publishEndpoint.Publish(mapper.Map<CartStatusChanged>(cart));
 
-                await publishEndpoint.Publish(mapper.Map<ItemUpdated>(item));
+                return Ok("Paument proceed successfully");
             }
+            else
+            {
+                await UpdateItemsToAvaiable(items);
 
-            return NoContent();
+                cart.Status = "Active";
+                await DB.SaveAsync(cart);
+                await publishEndpoint.Publish(mapper.Map<CartStatusChanged>(cart));
+
+                return BadRequest("Payment failed");
+            }
         }
         catch (Exception ex)
         {
             return BadRequest(ex.Message);
+        }
+    }
+
+    private async Task UpdateItemsToReserved(IEnumerable<Item> items, string username)
+    {
+        var timeNow = DateTime.UtcNow;
+
+        foreach (var item in items)
+        {
+            item.Status = ItemStatus.Reserved;
+            item.ReservedAt = timeNow;
+            item.ReservedUntil = timeNow.AddMinutes(5);
+            item.ReservedBy = username;
+
+            await DB.SaveAsync(item);
+
+            await publishEndpoint.Publish(mapper.Map<ItemUpdated>(item));
+        }
+    }
+
+    private async Task UpdateItemsToSold(IEnumerable<Item> items, string username)
+    {
+        foreach (var item in items)
+        {
+            item.Status = ItemStatus.Sold;
+            item.Buyer = username;
+
+            await DB.SaveAsync(item);
+
+            await publishEndpoint.Publish(mapper.Map<ItemUpdated>(item));
+        }
+    }
+
+    private async Task UpdateItemsToAvaiable(IEnumerable<Item> items)
+    {
+        foreach (var item in items)
+        {
+            item.Status = ItemStatus.Avaiable;
+            item.ReservedAt = null;
+            item.ReservedUntil = null;
+            item.ReservedBy = null;
+
+            await DB.SaveAsync(item);
+
+            await publishEndpoint.Publish(mapper.Map<ItemUpdated>(item));
         }
     }
 }

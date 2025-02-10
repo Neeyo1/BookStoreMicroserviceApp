@@ -9,7 +9,7 @@ public class CartRepository : ICartRepository
     public async Task<Cart?> GetActiveCartByUsernameAsync(string username)
     {
         return await DB.Find<Cart>()
-            .Match(x => x.Username == username && x.Status == CartStatus.Active)
+            .Match(x => x.Username == username && x.Status == "Active")
             .ExecuteFirstAsync();
     }
 }
