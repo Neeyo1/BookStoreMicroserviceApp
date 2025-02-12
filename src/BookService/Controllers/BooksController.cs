@@ -85,7 +85,7 @@ public class BooksController(IUnitOfWork unitOfWork, IMapper mapper,
 
     [Authorize(Policy = "RequireAdminRole")]
     [HttpGet("{bookId}/items")]
-    public async Task<ActionResult<ItemDto>> GetItems(Guid bookId)
+    public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems(Guid bookId)
     {
         var book = await unitOfWork.BookRepository.GetBookByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");

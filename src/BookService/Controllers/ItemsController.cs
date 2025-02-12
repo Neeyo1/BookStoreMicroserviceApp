@@ -14,7 +14,7 @@ public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper,
     IPublishEndpoint publishEndpoint) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<ItemDto>> GetItems(Guid bookId)
+    public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems(Guid bookId)
     {
         var book = await unitOfWork.BookRepository.GetBookByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");
@@ -34,7 +34,7 @@ public class ItemsController(IUnitOfWork unitOfWork, IMapper mapper,
     }
 
     [HttpPut]
-    public async Task<ActionResult<BookDto>> CreateItem(Guid bookId, int quantity)
+    public async Task<ActionResult> CreateItems(Guid bookId, int quantity)
     {
         var book = await unitOfWork.BookRepository.GetBookWithDetailsByIdAsync(bookId);
         if (book == null) return BadRequest("Failed to find book of given id");
