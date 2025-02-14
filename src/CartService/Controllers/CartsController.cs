@@ -79,8 +79,7 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
         }
         else // Cart exists
         {
-            var item = cart.BookCarts
-                .FirstOrDefault(x => x.BookId == bookId);
+            var item = await cartRepository.GetBookCartByIdsAsync(cart.Id, bookId);
             if (item == null) // New book in cart, add it to cart
             {
                 var newItem = new BookCart
