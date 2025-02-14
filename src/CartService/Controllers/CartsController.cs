@@ -130,8 +130,7 @@ public class CartsController(ICartRepository cartRepository, IBookRepository boo
             return BadRequest("This cart is already proceeding");
         }
         
-        var item = cart.BookCarts
-            .FirstOrDefault(x => x.BookId == bookId);
+        var item = await cartRepository.GetBookCartByIdsAsync(cart.Id, bookId);
         if (item == null)
         {
            return BadRequest("Book does not exist in cart");

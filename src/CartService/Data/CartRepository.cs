@@ -45,6 +45,12 @@ public class CartRepository(CartDbContext context, IMapper mapper) : ICartReposi
                 && (x.Status == CartStatus.Active || x.Status == CartStatus.Proceeding));
     }
 
+    public async Task<BookCart?> GetBookCartByIdsAsync(Guid cartId, Guid bookId)
+    {
+        return await context.BookCarts
+            .FirstOrDefaultAsync(x => x.CartId == cartId && x.BookId == bookId);
+    }
+
     public async Task<bool> Complete()
     {
         return await context.SaveChangesAsync() > 0;

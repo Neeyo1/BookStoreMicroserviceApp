@@ -10,5 +10,6 @@ public interface ICartRepository
     Task<Cart?> GetCartByIdAsync(Guid cartId);
     Task<Cart?> GetCartWithDetailsByIdAsync(Guid cartId);
     Task<Cart?> GetActiveOrProceedingCartByUsernameAsync(string username);
+    Task<BookCart?> GetBookCartByIdsAsync(Guid cartId, Guid bookId);
     Task<bool> Complete();
 }
