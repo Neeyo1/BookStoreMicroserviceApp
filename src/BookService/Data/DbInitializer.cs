@@ -93,7 +93,7 @@ public class DbInitializer
                 Name = "Magic beasts",
                 Year = 2022,
                 Price = 30,
-                ImageUrl = "randomImage.url",
+                ImageUrl = "https://cdn.pixabay.com/photo/2022/07/20/17/32/skull-7334627_1280.png",
                 AuthorId = Guid.Parse("afbee524-5972-4075-8800-7d1f9d7b0a0c"),
                 PublisherId = Guid.Parse("7edb654f-d6c7-467e-b2ce-82662763f204")
             },
@@ -103,7 +103,7 @@ public class DbInitializer
                 Name = "Facts about cosmos",
                 Year = 2024,
                 Price = 51,
-                ImageUrl = "randomImage.url",
+                ImageUrl = "https://cdn.pixabay.com/photo/2024/02/14/04/22/moon-8572271_1280.jpg",
                 AuthorId = Guid.Parse("ac9adc10-5cb5-49be-a74a-ac4179a573ce"),
                 PublisherId = Guid.Parse("73dfe47b-b447-42f0-babc-bcf63d63c8d6")
             },
@@ -113,7 +113,7 @@ public class DbInitializer
                 Name = "Wild life",
                 Year = 2019,
                 Price = 15,
-                ImageUrl = "randomImage.url",
+                ImageUrl = "https://cdn.pixabay.com/photo/2022/11/10/20/43/cat-7583672_1280.jpg",
                 AuthorId = Guid.Parse("51448aec-e3c8-403e-bfeb-b8c906511469"),
                 PublisherId = Guid.Parse("6029e7fd-47f6-4583-b3db-239a6fc446a5")
             }
