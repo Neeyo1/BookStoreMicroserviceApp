@@ -10,6 +10,12 @@ COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.cspr
 COPY src/GatewayService/GatewayService.csproj src/GatewayService/GatewayService.csproj
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
 COPY src/Contracts/Contracts.csproj src/Contracts/Contracts.csproj
+COPY tests/BookService.UnitTests/BookService.UnitTests.csproj tests/BookService.UnitTests/BookService.UnitTests.csproj
+COPY tests/BookService.IntegrationTests/BookService.IntegrationTests.csproj tests/BookService.IntegrationTests/BookService.IntegrationTests.csproj
+COPY tests/CartService.UnitTests/CartService.UnitTests.csproj tests/CartService.UnitTests/CartService.UnitTests.csproj
+COPY tests/CartService.IntegrationTests/CartService.IntegrationTests.csproj tests/CartService.IntegrationTests/CartService.IntegrationTests.csproj
+COPY tests/SearchService.IntegrationTests/SearchService.IntegrationTests.csproj tests/SearchService.IntegrationTests/SearchService.IntegrationTests.csproj
+
 
 RUN dotnet restore BookStoreMicroserviceApp.sln
 
