@@ -31,7 +31,7 @@ internal static class HostingExtensions
 
                 if (builder.Environment.IsEnvironment("Docker"))
                 {
-                    options.IssuerUri = "http://book-store-identity-svc";
+                    options.IssuerUri = "http://localhost:5000";
                 }
 
                 // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
