@@ -12,11 +12,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientId: "nextApp",
             clientSecret: "SurelyNotASecret",
             issuer: process.env.ID_URL,
-            authorization: {params: {scope: "openid profile bookStoreMicroserviceApp"}},
+            authorization: {
+                params: {scope: "openid profile bookStoreMicroserviceApp"},
+                url: process.env.ID_URL + "/connect/authorize"
+            },
+            token: {
+                url: `${process.env.ID_URL_INTERNAL}/connect/token`
+            },
+            userinfo: {
+                url: `${process.env.ID_URL_INTERNAL}/connect/token`
+            },
             idToken: true
         } as OIDCConfig<Omit<Profile, "username">>),
     ],
     callbacks: {
+        async redirect({url, baseUrl}){
+            return url.startsWith(baseUrl) ? url : baseUrl;
+        },
         async authorized({auth}){
             return !!auth
         },

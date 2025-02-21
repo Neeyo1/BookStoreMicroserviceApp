@@ -92,6 +92,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
+      - IssuerUri=http://localhost:5000
+      - ClientApp=http://localhost:3000
       - ConnectionStrings__DefaultConnection=Server=postgres:5432;User ID=postgres;Password=zaq1@WSX;Database=identity
     ports:
       - 5000:80
@@ -120,6 +122,7 @@ services:
       - AUTH_SECRET="f942Ie7ecRbG2tQolecSHlU/QxLBtKChE2JMxovhYbQ="
       - API_URL=http://book-store-gateway-svc
       - ID_URL=http://localhost:5000
+      - ID_URL_INTERNAL=http://book-store-identity-svc
       - AUTH_URL=http://localhost:3000
       - AUTH_URL_INTERNAL=http://web-app:3000
 volumes:
