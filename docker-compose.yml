@@ -107,6 +107,21 @@ services:
       - ASPNETCORE_URLS=http://+:80
     ports:
       - 6001:80
+  book-store-web-app:
+    image: neeyo/book-store-web-app:latest
+    build: 
+      context: .
+      dockerfile: frontend/web-app/Dockerfile
+    volumes:
+      - /var/lib/web/data
+    ports:
+      - 3000:3000
+    environment:
+      - AUTH_SECRET="f942Ie7ecRbG2tQolecSHlU/QxLBtKChE2JMxovhYbQ="
+      - API_URL=http://book-store-gateway-svc
+      - ID_URL=http://localhost:5000
+      - AUTH_URL=http://localhost:3000
+      - AUTH_URL_INTERNAL=http://web-app:3000
 volumes:
   pgdata:
   mongoData:

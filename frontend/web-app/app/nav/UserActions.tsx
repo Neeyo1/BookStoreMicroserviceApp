@@ -4,7 +4,6 @@ import { Dropdown, DropdownDivider, DropdownItem } from "flowbite-react";
 import { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { HiLogout } from "react-icons/hi";
 import { HiCog, HiShoppingCart, HiUser } from "react-icons/hi2";
 
@@ -13,7 +12,6 @@ type Props = {
 }
 
 export default function UserActions({user}: Props) {
-    const router = useRouter();
     return (
         <Dropdown inline label={`Welcome ${user.name}`}>
             <DropdownItem icon={HiUser}>
