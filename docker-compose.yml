@@ -92,11 +92,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
-      - IssuerUri=http://localhost:5000
-      - ClientApp=http://localhost:3000
+      - IssuerUri=https://id.bookstore.local
+      - ClientApp=https://app.bookstore.local
       - ConnectionStrings__DefaultConnection=Server=postgres:5432;User ID=postgres;Password=zaq1@WSX;Database=identity
-    ports:
-      - 5000:80
+      - VIRTUAL_HOST=id.bookstore.local
     depends_on:
       - postgres
   book-store-gateway-svc:
@@ -107,8 +106,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
-    ports:
-      - 6001:80
+      - ClientApp=https://app.bookstore.local
+      - VIRTUAL_HOST=api.bookstore.local
   book-store-web-app:
     image: neeyo/book-store-web-app:latest
     build: 
@@ -116,15 +115,24 @@ services:
       dockerfile: frontend/web-app/Dockerfile
     volumes:
       - /var/lib/web/data
-    ports:
-      - 3000:3000
     environment:
       - AUTH_SECRET="f942Ie7ecRbG2tQolecSHlU/QxLBtKChE2JMxovhYbQ="
       - API_URL=http://book-store-gateway-svc
-      - ID_URL=http://localhost:5000
+      - ID_URL=https://id.bookstore.local
       - ID_URL_INTERNAL=http://book-store-identity-svc
-      - AUTH_URL=http://localhost:3000
+      - AUTH_URL=https://app.bookstore.local
       - AUTH_URL_INTERNAL=http://web-app:3000
+      - VIRTUAL_HOST=app.bookstore.local
+      - VIRTUAL_PORT=3000
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./devcerts:/etc/nginx/certs
 volumes:
   pgdata:
   mongoData:
