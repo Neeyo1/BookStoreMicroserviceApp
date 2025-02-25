@@ -2,6 +2,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MongoDB.Driver;
 using MongoDB.Entities;
+using Polly;
 using PurchaseService.Consumers;
 using PurchaseService.Data;
 using PurchaseService.Interfaces;
@@ -53,17 +54,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
-try
+var retryPolicy = Policy
+    .Handle<TimeoutException>()
+    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(10));
+
+retryPolicy.ExecuteAndCapture(async () => 
 {
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
     var connectionString = app.Configuration.GetConnectionString("MongoDbConnection");
     await DB.InitAsync("PurchaseDb", MongoClientSettings.FromConnectionString(connectionString));
-}
-catch (Exception ex)
-{
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occured during migration");
-}
+});
 
 app.Run();

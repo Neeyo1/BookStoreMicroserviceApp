@@ -1,4 +1,5 @@
 using MassTransit;
+using Polly;
 using SearchService.Consumers;
 using SearchService.Data;
 using SearchService.Interfaces;
@@ -42,19 +43,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
-try
+var retryPolicy = Policy
+    .Handle<TimeoutException>()
+    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(10));
+
+retryPolicy.ExecuteAndCapture(async () => 
 {
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
     var connectionString = app.Configuration.GetConnectionString("MongoDbConnection");
     var logger = services.GetRequiredService<ILogger<DbInitializer>>();
     await DbInitializer.InitDb(connectionString!, logger);
-}
-catch (Exception ex)
-{
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occured during migration");
-}
+});
 
 app.Run();
 

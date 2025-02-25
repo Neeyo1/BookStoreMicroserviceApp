@@ -4,6 +4,8 @@ using BookService.Interfaces;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,20 +72,19 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
-try
+var retryPolicy = Policy
+    .Handle<NpgsqlException>()
+    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(5));
+
+retryPolicy.ExecuteAndCapture(async () => 
 {
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
     var context = services.GetRequiredService<BookDbContext>();
     var logger = services.GetRequiredService<ILogger<DbInitializer>>();
     await context.Database.MigrateAsync();
     await DbInitializer.InitDb(context, logger);
-}
-catch (Exception ex)
-{
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occured during migration");
-}
+});
 
 app.Run();
 
