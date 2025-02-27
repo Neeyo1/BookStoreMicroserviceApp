@@ -22,7 +22,7 @@ builder.Services.AddMassTransit(x =>
         conf.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
         {
             host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest")!);
-            host.Password(builder.Configuration.GetValue("RabbitMq:Username", "guest")!);
+            host.Password(builder.Configuration.GetValue("RabbitMq:Password", "guest")!);
         });
         
         conf.ReceiveEndpoint("search-book-created", y =>

@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: book-svc-config
+data:
+  ASPNETCORE_URLS: http://+:80
+  RabbitMq__Host: rabbitmq-clusterip
+  RabbitMq__Username: rabbit
+  RabbitMq__Password: rabbitpw
+  ConnectionStrings__DefaultConnection: Server=postgres-clusterip:5432;User ID=postgres;Password=zaq1@WSX;Database=books
+  IdentityServiceUrl: http://identity-clusterip
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-svc-config
+data:
+  ASPNETCORE_URLS: http://+:80
+  RabbitMq__Host: rabbitmq-clusterip
+  RabbitMq__Username: rabbit
+  RabbitMq__Password: rabbitpw
+  ConnectionStrings__MongoDbConnection: mongodb://root:password@mongo-clusterip
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart-svc-config
+data:
+  ASPNETCORE_URLS: http://+:80
+  RabbitMq__Host: rabbitmq-clusterip
+  RabbitMq__Username: rabbit
+  RabbitMq__Password: rabbitpw
+  ConnectionStrings__DefaultConnection: Server=postgres-clusterip:5432;User ID=postgres;Password=zaq1@WSX;Database=carts
+  IdentityServiceUrl: http://identity-clusterip
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: purchase-svc-config
+data:
+  ASPNETCORE_URLS: http://+:80
+  RabbitMq__Host: rabbitmq-clusterip
+  RabbitMq__Username: rabbit
+  RabbitMq__Password: rabbitpw
+  ConnectionStrings__MongoDbConnection: mongodb://root:password@mongo-clusterip
+  IdentityServiceUrl: http://identity-clusterip
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-svc-config
+data:
+  ASPNETCORE_URLS: http://+:80
+  ClientApp: https://app.bookstore.local
+  IdentityServiceUrl: http://identity-clusterip
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-svc-config
+data:
+  ASPNETCORE_URLS: http://+:80
+  IssuerUri: http://id.bookstore.local
+  ClientApp: http://app.bookstore.local
+  ConnectionStrings__DefaultConnection: Server=postgres-clusterip:5432;User ID=postgres;Password=zaq1@WSX;Database=identity
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webapp-svc-config
+data:
+  AUTH_SECRET: "f942Ie7ecRbG2tQolecSHlU/QxLBtKChE2JMxovhYbQ="
+  API_URL: http://gateway-clusterip
+  ID_URL: http://id.bookstore.local
+  ID_URL_INTERNAL: http://identity-clusterip
+  AUTH_URL: http://app.bookstore.local
+  AUTH_URL_INTERNAL: http://webapp-clusterip:3000

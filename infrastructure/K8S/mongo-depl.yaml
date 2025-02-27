@@ -15,10 +15,10 @@ spec:
       - name: mongo
         image: mongo
         env:
-          - name: MONGO_INIT_ROOT_USERNAME
+          - name: MONGO_INITDB_ROOT_USERNAME
             value: root
-          - name: MONGO_INIT_ROOT_PASSWORD
-            value: mongopw
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            value: password
         ports:
         - containerPort: 27017
         volumeMounts:
