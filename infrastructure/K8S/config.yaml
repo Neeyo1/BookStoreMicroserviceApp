@@ -60,8 +60,8 @@ metadata:
   name: identity-svc-config
 data:
   ASPNETCORE_URLS: http://+:80
-  IssuerUri: http://id.bookstore.local
-  ClientApp: http://app.bookstore.local
+  IssuerUri: https://id.bookstore.local
+  ClientApp: https://app.bookstore.local
   ConnectionStrings__DefaultConnection: Server=postgres-clusterip:5432;User ID=postgres;Password=zaq1@WSX;Database=identity
 ---
 apiVersion: v1
@@ -71,7 +71,7 @@ metadata:
 data:
   AUTH_SECRET: "f942Ie7ecRbG2tQolecSHlU/QxLBtKChE2JMxovhYbQ="
   API_URL: http://gateway-clusterip
-  ID_URL: http://id.bookstore.local
+  ID_URL: https://id.bookstore.local
   ID_URL_INTERNAL: http://identity-clusterip
-  AUTH_URL: http://app.bookstore.local
+  AUTH_URL: https://app.bookstore.local
   AUTH_URL_INTERNAL: http://webapp-clusterip:3000
