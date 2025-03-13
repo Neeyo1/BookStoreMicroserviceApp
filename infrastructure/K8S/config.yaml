@@ -19,6 +19,8 @@ data:
   RabbitMq__Host: rabbitmq-clusterip
   RabbitMq__Username: rabbit
   RabbitMq__Password: rabbitpw
+  Redis__Host: redis-clusterip
+  Redis__Password: redispw
   ConnectionStrings__MongoDbConnection: mongodb://root:password@mongo-clusterip
 ---
 apiVersion: v1
