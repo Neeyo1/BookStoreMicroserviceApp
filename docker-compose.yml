@@ -21,6 +21,14 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass secretpassword
+    volumes: 
+      - /data/redis
   book-store-book-svc:
     image: neeyo/book-store-book-svc:latest
     build: 
@@ -47,11 +55,14 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - RabbitMq__Host=rabbitmq
       - ConnectionStrings__MongoDbConnection=mongodb://root:password@mongodb
+      - Redis_Host=redis
+      - Redis_Password=secretpassword
     ports:
       - 7002:80
     depends_on:
       - mongodb
       - rabbitmq
+      - redis
   book-store-cart-svc:
     image: neeyo/book-store-cart-svc:latest
     build: 

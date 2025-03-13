@@ -3,6 +3,7 @@ using Polly;
 using SearchService.Consumers;
 using SearchService.Data;
 using SearchService.Interfaces;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,22 @@ builder.Services.AddMassTransit(x =>
 
         conf.ConfigureEndpoints(context);
     });
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var host = builder.Configuration.GetValue("Redis:Host", "localhost");
+    var password = builder.Configuration.GetValue("Redis:Password", "secretpassword");
+
+    options.Configuration = $"{host}:6379,password={password}";
+    options.InstanceName = "BookStore_";
+});
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+{
+    var host = builder.Configuration.GetValue("Redis:Host", "localhost");
+    var password = builder.Configuration.GetValue("Redis:Password", "secretpassword");
+    return ConnectionMultiplexer.Connect($"{host}:6379,password={password}");
 });
 
 var app = builder.Build();
