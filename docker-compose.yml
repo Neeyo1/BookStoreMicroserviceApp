@@ -55,8 +55,8 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - RabbitMq__Host=rabbitmq
       - ConnectionStrings__MongoDbConnection=mongodb://root:password@mongodb
-      - Redis_Host=redis
-      - Redis_Password=secretpassword
+      - Redis__Host=redis
+      - Redis__Password=secretpassword
     ports:
       - 7002:80
     depends_on:
