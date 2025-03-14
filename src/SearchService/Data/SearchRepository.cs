@@ -1,40 +1,44 @@
 using MongoDB.Driver;
 using MongoDB.Entities;
+using Nest;
 using SearchService.Entities;
 using SearchService.Helpers;
 using SearchService.Interfaces;
 
 namespace SearchService.Data;
 
-public class SearchRepository : ISearchRepository
+public class SearchRepository(IElasticClient elasticClient) : ISearchRepository
 {
     public async Task<(IReadOnlyList<Book> Results, long TotalCount, int PageCount)> GetBooks(SearchParams searchParams)
     {
-        var query = DB.PagedSearch<Book, Book>();
+        var searchResponse = await elasticClient.SearchAsync<BookES>(s => s
+            .Query(q => q
+                .MultiMatch(m => m
+                    .Fields(f => f
+                        .Field(p => p.Name)
+                        .Field(p => p.AuthorAlias))
+                    .Query(searchParams.SearchTerm)))
+            .From((searchParams.PageNumber - 1) * searchParams.PageSize)
+            .Size(searchParams.PageSize)
+        );
 
-        if (!string.IsNullOrEmpty(searchParams.SearchTerm))
+        if (!searchResponse.IsValid || searchResponse.Documents.Count == 0)
         {
-            query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
+            return (new List<Book>(), 0, 0);
         }
-        query = searchParams.OrderBy switch
-        {
-            "name" => query.Sort(x => x.Ascending(y => y.Name)),
-            "name-desc" => query.Sort(x => x.Descending(y => y.Name)),
-            "count" => query.Sort(x => x.Ascending(y => y.Items)),
-            "count-desc" => query.Sort(x => x.Descending(y => y.Items)),
-            _ => query.Sort(x => x.Ascending(y => y.Name)) // "name"
-        };
-        query = searchParams.FilterBy switch
-        {
-            "avaiable" => query.Match(x => x.Items > 0),
-            "non-avaiable" => query.Match(x => x.Items == 0),
-            "all" => query,
-            _ => query // "all"
-        };
-        query.PageNumber(searchParams.PageNumber);
-        query.PageSize(searchParams.PageSize);
 
-        return await query.ExecuteAsync();
+        var totalCount = searchResponse.Total;
+        var pageCount = (int)Math.Ceiling((double)totalCount / searchParams.PageSize);
+
+        var bookIds = searchResponse.Documents
+            .Select(x => x.Id)
+            .ToList();
+
+        var books = await DB.Find<Book>()
+            .Match(x => bookIds.Contains(x.ID))
+            .ExecuteAsync();
+
+        return (books, totalCount, pageCount);
     }
 
     public async Task<DeleteResult> DeleteBook(Guid id)

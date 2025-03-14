@@ -13,5 +13,6 @@ public class AutoMapperProfiles : Profile
         CreateMap<BookUpdated, Book>();
         CreateMap<(IReadOnlyList<Book> Results, long TotalCount, int PageCount), SearchDto>()
             .ConvertUsing<TupleToSearchDtoConverter>();
+        CreateMap<Book, BookES>();
     }
 }

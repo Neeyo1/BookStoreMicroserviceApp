@@ -23,12 +23,22 @@ services:
       - 15672:15672
   redis:
     image: redis:6.2-alpine
-    restart: always
     ports:
       - 6379:6379
     command: redis-server --save 20 1 --loglevel warning --requirepass secretpassword
     volumes: 
       - /data/redis
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - /data/elasticsearch
   book-store-book-svc:
     image: neeyo/book-store-book-svc:latest
     build: 
@@ -57,12 +67,14 @@ services:
       - ConnectionStrings__MongoDbConnection=mongodb://root:password@mongodb
       - Redis__Host=redis
       - Redis__Password=secretpassword
+      - Elasticsearch__Uri=elasticsearch:9200
     ports:
       - 7002:80
     depends_on:
       - mongodb
       - rabbitmq
       - redis
+      - elasticsearch
   book-store-cart-svc:
     image: neeyo/book-store-cart-svc:latest
     build: 

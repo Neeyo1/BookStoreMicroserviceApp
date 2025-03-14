@@ -1,5 +1,7 @@
 using Contracts;
 using MassTransit;
+using Nest;
+using SearchService.Entities;
 using SearchService.Helpers;
 using SearchService.Interfaces;
 using StackExchange.Redis;
@@ -7,7 +9,7 @@ using StackExchange.Redis;
 namespace SearchService.Consumers;
 
 public class BookDeletedConsumer(ISearchRepository searchRepository, ILogger<BookDeletedConsumer> logger,
-    IConnectionMultiplexer redis) : IConsumer<BookDeleted>
+    IConnectionMultiplexer redis, IElasticClient elasticClient) : IConsumer<BookDeleted>
 {
     public async Task Consume(ConsumeContext<BookDeleted> context)
     {
@@ -15,6 +17,7 @@ public class BookDeletedConsumer(ISearchRepository searchRepository, ILogger<Boo
         var result = await searchRepository.DeleteBook(context.Message.Id);
         if (result.IsAcknowledged)
         {
+            await elasticClient.DeleteAsync<BookES>(context.Message.Id.ToString());
             await RedisCacheHelper.RemoveKeysByPrefixAsync(redis, "BookStore_Items_");
         }
         else

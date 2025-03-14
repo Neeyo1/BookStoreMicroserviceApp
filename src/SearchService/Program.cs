@@ -1,7 +1,9 @@
 using MassTransit;
+using Nest;
 using Polly;
 using SearchService.Consumers;
 using SearchService.Data;
+using SearchService.Entities;
 using SearchService.Interfaces;
 using StackExchange.Redis;
 
@@ -52,6 +54,18 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     return ConnectionMultiplexer.Connect($"{host}:6379,password={password}");
 });
 
+builder.Services.AddSingleton<IElasticClient>(_ =>
+{
+    var uri = builder.Configuration.GetValue("Elasticsearch:Uri", "http://localhost:9200")!;
+
+    var settings = new ConnectionSettings(new Uri(uri))
+        .DefaultIndex("books")
+        .DisableDirectStreaming()
+        .PrettyJson();
+
+    return new ElasticClient(settings);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -60,7 +74,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var retryPolicy = Policy
+var retryPolicy = Polly.Policy
     .Handle<TimeoutException>()
     .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(10));
 
@@ -72,6 +86,30 @@ retryPolicy.ExecuteAndCapture(async () =>
     var logger = services.GetRequiredService<ILogger<DbInitializer>>();
     await DbInitializer.InitDb(connectionString!, logger);
 });
+
+using var scope = app.Services.CreateScope();
+var client = scope.ServiceProvider.GetRequiredService<IElasticClient>();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+var indexExists = client.Indices.Exists("books").Exists;
+if (!indexExists)
+{
+    var createIndexResponse = client.Indices.Create("books", x => x
+        .Map<BookES>(book => book
+            .AutoMap()
+        )
+    );
+
+    if (createIndexResponse.IsValid)
+    {
+        logger.LogInformation("Successfully created index books in Elasticsearch.");
+    }
+    else
+    {
+        logger.LogError("Failed to create index books in Elasticsearch.");
+    }
+}
+
 
 app.Run();
 
