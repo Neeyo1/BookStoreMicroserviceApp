@@ -67,7 +67,7 @@ services:
       - ConnectionStrings__MongoDbConnection=mongodb://root:password@mongodb
       - Redis__Host=redis
       - Redis__Password=secretpassword
-      - Elasticsearch__Uri=elasticsearch:9200
+      - Elasticsearch__Uri=http://elasticsearch:9200
     ports:
       - 7002:80
     depends_on:

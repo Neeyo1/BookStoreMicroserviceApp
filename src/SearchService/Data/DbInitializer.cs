@@ -1,6 +1,8 @@
 using System.Text.Json;
+using AutoMapper;
 using MongoDB.Driver;
 using MongoDB.Entities;
+using Nest;
 using SearchService.Entities;
 
 namespace SearchService.Data;
@@ -39,5 +41,43 @@ public class DbInitializer
         {
             logger.LogInformation("------ Seeding process skipped ------");
         }
+    }
+
+    public static async Task IndexDocuments(IElasticClient elasticClient, IMapper mapper,
+        ILogger<DbInitializer> logger)
+    {
+        var books = await DB.Find<Book>()
+            .ExecuteAsync();
+
+        var indicesResponse = await elasticClient.Cat.IndicesAsync();
+        if (indicesResponse.IsValid)
+        {
+            var indexCount = indicesResponse.Records.Count;
+            if (indexCount == books.Count)
+            {
+                logger.LogInformation("------ All books already indexed ------");
+                return;
+            }
+        }
+        else
+        {
+            logger.LogError("------ Failed to get index count ------");
+            return;
+        }
+
+        var successCount = 0;
+
+        foreach (var book in books)
+        {
+            var indexResponse = await elasticClient.IndexDocumentAsync(mapper.Map<BookES>(book));
+
+            if (indexResponse.IsValid)
+            {
+                successCount++;
+            }
+        }
+
+        logger.LogInformation("------ Successfully indexed {successCount}/{totalCount} ------",
+            successCount, books.Count);
     }
 }
